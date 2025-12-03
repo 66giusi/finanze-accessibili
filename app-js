@@ -1,0 +1,68 @@
+import React, { useState } from "react";
+import { View, Text, TextInput, Button, FlatList } from "react-native";
+import * as Speech from "expo-speech";
+
+export default function App() {
+  const [transactions, setTransactions] = useState([]);
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
+
+  const addTransaction = () => {
+    if (!amount || !category) return;
+    const newTransaction = {
+      id: Date.now().toString(),
+      amount: parseFloat(amount),
+      category,
+    };
+    setTransactions([...transactions, newTransaction]);
+    setAmount("");
+    setCategory("");
+    Speech.speak(`Aggiunta spesa di ${amount} euro in ${category}`);
+  };
+
+  const total = transactions.reduce((sum, t) => sum + t.amount, 0);
+
+  return (
+    <View style={{ flex: 1, padding: 20, marginTop: 40 }}>
+      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
+        Finanze Accessibili per Noi
+      </Text>
+      <Text style={{ fontSize: 18, marginBottom: 10 }}>Totale: €{total.toFixed(2)}</Text>
+
+      <TextInput
+        placeholder="Importo"
+        value={amount}
+        onChangeText={setAmount}
+        keyboardType="numeric"
+        style={{
+          borderWidth: 1,
+          borderColor: "#ccc",
+          padding: 8,
+          marginVertical: 10,
+        }}
+      />
+
+      <TextInput
+        placeholder="Categoria"
+        value={category}
+        onChangeText={setCategory}
+        style={{
+          borderWidth: 1,
+          borderColor: "#ccc",
+          padding: 8,
+          marginBottom: 10,
+        }}
+      />
+
+      <Button title="Aggiungi" onPress={addTransaction} />
+
+      <FlatList
+        data={transactions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <Text style={{ marginTop: 10 }}>{item.category}: €{item.amount}</Text>
+        )}
+      />
+    </View>
+  );
+}
